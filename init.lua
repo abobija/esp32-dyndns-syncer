@@ -4,10 +4,11 @@ require "syncer"
 local BLUE_LED = 2
 
 local syncer = NameCheapDynDnsSyncer.create({
-    interval = CONFIG.sync_interval,
-    host     = CONFIG.dyndns_rec_host,
-    domain   = CONFIG.dyndns_rec_domain,
-    pass     = CONFIG.dyndns_pass
+    interval    = CONFIG.sync_interval,
+    host        = CONFIG.dyndns_rec_host,
+    domain      = CONFIG.dyndns_rec_domain,
+    pass        = CONFIG.dyndns_pass,
+    api_enabled = CONFIG.api_enabled
 })
 
 gpio.config({ gpio = BLUE_LED, dir = gpio.OUT })

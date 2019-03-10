@@ -85,15 +85,28 @@ local syncer_sync = function(syncer, _tmr)
     end)
 end
 
+local init_api = function(syncer, _tmr)
+    if syncer.api_enabled == true and syncer.api == nil then
+        require "api"
+        
+        syncer.api = Api.create({
+            port   = 80,
+            syncer = syncer
+        })
+    end
+end
+
 NameCheapDynDnsSyncer.create = function(conf)
     local self = {
         interval       = conf.interval,
         host           = conf.host,
         domain         = conf.domain,
         pass           = conf.pass,
+        api_enabled    = conf.api_enabled,
+        api            = nil,
         on_before_sync = conf.on_before_sync,
         on_after_sync  = conf.on_after_sync,
-        global_ip      = nil
+        public_ip      = nil
     }
 
     local sync_tmr = tmr.create()
@@ -109,6 +122,10 @@ NameCheapDynDnsSyncer.create = function(conf)
     self.fire_sta_got_ip = function(e, info)
         print('[DynDnsSyncer] STA:', e, info.ip, ' netmask = ', info.netmask, ' gateway = ', info.gw)
 
+        if self.api_enabled == true then
+            init_api(self, sync_tmr)
+        end
+        
         syncer_sync(self, sync_tmr)
     end
     
