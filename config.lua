@@ -2,7 +2,7 @@ CONFIG = {
     wifi_ssid         = 'MyWifi',
     wifi_pwd          = 'MyWifiPassword',
 
-    sync_interval     = 15, -- minutes
+    sync_interval     = 10, -- minutes
     
     dyndns_rec_host   = 'router',
     dyndns_rec_domain = 'my-domain.com',
