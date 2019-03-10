@@ -25,20 +25,30 @@ local syncer_sync = function(syncer, _tmr)
         syncer.on_before_sync(syncer)
     end
 
-    print('[DynDnsSyncer] get_public_ip...')
+    print('[DynDnsSyncer] get_public_ip()...')
     
     get_public_ip(function(code, public_ip)
         if(code < 0) then
             print('http req failed', code)
             syncer_fire_after_sync(syncer, _tmr)
         else
-            print('[DynDnsSyncer] update_dyn_dns_record...')
+            print('[DynDnsSyncer] public_ip =', public_ip)
+        
+            if syncer.public_ip ~= nil and syncer.public_ip == public_ip then
+                print('[DynDnsSyncer] public ip has not changed')
+                syncer_fire_after_sync(syncer, _tmr)
+                return
+            end
+
+            syncer.public_ip = public_ip
+            
+            print('[DynDnsSyncer] update_dyn_dns_record()...')
         
             update_dyn_dns_record({
                 host   = syncer.host,
                 domain = syncer.domain,
                 pass   = syncer.pass,
-                ip     = public_ip
+                ip     = syncer.public_ip
             }, function(code, res)
                 if(code < 0) then
                     print('http req failed', code)
@@ -60,7 +70,8 @@ NameCheapDynDnsSyncer = {
             domain         = conf.domain,
             pass           = conf.pass,
             on_before_sync = conf.on_before_sync,
-            on_after_sync  = conf.on_after_sync
+            on_after_sync  = conf.on_after_sync,
+            global_ip      = nil
         }
 
         local sync_tmr = tmr.create()
