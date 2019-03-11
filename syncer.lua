@@ -87,12 +87,29 @@ end
 
 local init_api = function(syncer, _tmr)
     if syncer.api_enabled == true and syncer.api == nil then
-        require "api"
-        
-        syncer.api = Api.create({
-            port   = 80,
-            syncer = syncer
+        syncer.api = require('api')
+        .create({
+            port = 80
         })
+        .add_endpoint('/', function(_api, _req) 
+            local response = {
+                id            = node.chipid(),
+                name          = "ESP32 DynDNS Syncer",
+                uptime        = node.uptime(),
+                heap          = node.heap(),
+                local_ip      = syncer.local_ip,
+                public_ip     = nil,
+                host          = syncer.host,
+                domain        = syncer.domain,
+                sync_interval = syncer.interval
+            }
+            
+            if syncer.public_ip ~= nil then
+                response.public_ip = syncer.public_ip
+            end
+        
+            return response
+        end)
     end
 end
 

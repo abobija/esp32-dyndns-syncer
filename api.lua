@@ -12,14 +12,15 @@ Api.json_stringify = function(table)
     local result = '{' .. "\n"
 
     for k, v in pairs(table) do
-        local isNumber = type(v) == 'number'
+        local _type = type(v)
+        local quotable = _type ~= 'number' and _type ~= 'boolean'
         
         result = result .. '  ' .. '"' .. k .. '": '
 
-        if isNumber then 
-            result = result .. v
-        else
+        if quotable then 
             result = result .. '"' .. v .. '"'
+        else
+            result = result .. v
         end
         
         if next(table, k) ~= nil then
@@ -52,9 +53,26 @@ end
 
 Api.create = function(conf) 
     local self = {
-        port   = conf.port,
-        syncer = conf.syncer
+        port = conf.port
     }
+
+    local endpoints = {}
+
+    self.add_endpoint = function(path, handler)
+        table.insert(endpoints, {
+            path    = path,
+            handler = handler
+        })
+        return self
+    end
+
+    local get_endpoint_by_path = function(path)
+        for _, ep in pairs(endpoints) do
+            if ep.path == path then return ep end
+        end
+
+        return nil
+    end
     
     local srv = net.createServer(net.TCP, 30)
 
@@ -73,36 +91,29 @@ Api.create = function(conf)
         local req = Api.parse_http_request(data)
         data = nil
 
+        local response_status = '200 OK'
+        
         res[1] = 'HTTP/1.1 '
+        res[#res + 1] = "Content-Type: application/json; charset=UTF-8\r\n"
+        res[#res + 1] = "\r\n"
         
         if req == nil then
-            res[1] = res[1] .. "400 Bad Request\r\n\r\n"
+            response_status = '400 Bad Request'
         else
             print('[DynDnsSyncer:API]', 'method:' .. req.method .. ', path:' .. req.path .. ', std:' .. req.std)
             
-            res[1] = res[1] .. "200 OK\r\n"
-            res[#res + 1] = "Content-Type: application/json; charset=UTF-8\r\n"
-            res[#res + 1] = "\r\n"
-
-            local json_tbl = {
-                id            = node.chipid(),
-                name          = "ESP32 DynDNS Syncer",
-                uptime        = node.uptime(),
-                heap          = node.heap(),
-                local_ip      = self.syncer.local_ip,
-                public_ip     = nil,
-                host          = self.syncer.host,
-                domain        = self.syncer.domain,
-                sync_interval = self.syncer.interval
-            }
+            local ep = get_endpoint_by_path(req.path)
+            local res_json_tbl = {}
             
-            if self.syncer.public_ip ~= nil then
-                json_tbl.public_ip = self.syncer.public_ip
+            if ep == nil then
+                response_status = '404 Not Found'
+            else
+                res_json_tbl = ep.handler(self, req)
+                res[#res + 1] = Api.json_stringify(res_json_tbl)
             end
-
-            res[#res + 1] = Api.json_stringify(json_tbl)
         end
-        
+
+        res[1] = res[1] .. response_status .. "\r\n"
         sck:on("sent", send)
         send(sck)
     end
@@ -115,3 +126,5 @@ Api.create = function(conf)
 
     return self
 end
+
+return Api
