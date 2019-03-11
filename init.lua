@@ -1,9 +1,8 @@
 require "config"
-require "syncer"
 
 local BLUE_LED = 2
 
-local syncer = NameCheapDynDnsSyncer.create({
+local syncer = require('syncer').create({
     interval    = CONFIG.sync_interval,
     host        = CONFIG.dyndns_rec_host,
     domain      = CONFIG.dyndns_rec_domain,

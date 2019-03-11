@@ -1,4 +1,4 @@
-NameCheapDynDnsSyncer = {
+local NameCheapDynDnsSyncer = {
     DNS_RECORD_UPDATED  = 1,
     PUBLIC_IP_NO_CHANGE = 2,
     PUBLIC_IP_SERVICE_HTTP_REQ_ERROR = 3,
@@ -156,3 +156,5 @@ NameCheapDynDnsSyncer.create = function(conf)
     
     return self
 end
+
+return NameCheapDynDnsSyncer
