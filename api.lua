@@ -8,6 +8,30 @@ local function str_split(inputstr, sep)
     return result
 end
 
+Api.json_stringify = function(table)
+    local result = '{' .. "\n"
+
+    for k, v in pairs(table) do
+        local isNumber = type(v) == 'number'
+        
+        result = result .. '  ' .. '"' .. k .. '": '
+
+        if isNumber then 
+            result = result .. v
+        else
+            result = result .. '"' .. v .. '"'
+        end
+        
+        if next(table, k) ~= nil then
+            result = result .. ','
+        end
+        
+        result = result .. '\n'
+    end
+
+    return result .. '}'
+end
+
 Api.parse_http_request = function(request)
     local first_rn = request:find("\r\n")
 
@@ -60,26 +84,23 @@ Api.create = function(conf)
             res[#res + 1] = "Content-Type: application/json; charset=UTF-8\r\n"
             res[#res + 1] = "\r\n"
 
-            res[#res + 1] = '{' .. "\r\n"
-                    .. '"id": "' .. node.chipid() .. '"' .. ",\r\n"
-                    .. '"name": "ESP32 DynDNS Syncer"' .. ",\r\n"
-                    .. '"uptime": ' .. node.uptime() .. ",\r\n"
-                    .. '"heap": ' .. node.heap() .. ",\r\n"
-                    .. '"local_ip": "' .. self.syncer.local_ip .. '"' .. ",\r\n"
+            local json_tbl = {
+                id            = node.chipid(),
+                name          = "ESP32 DynDNS Syncer",
+                uptime        = node.uptime(),
+                heap          = node.heap(),
+                local_ip      = self.syncer.local_ip,
+                public_ip     = nil,
+                host          = self.syncer.host,
+                domain        = self.syncer.domain,
+                sync_interval = self.syncer.interval
+            }
             
-            res[#res + 1] = '"public_ip": '
-
-            if self.syncer.public_ip == nil then
-                res[#res + 1] = 'null'
-            else
-                res[#res + 1] = '"' .. self.syncer.public_ip .. '"'
+            if self.syncer.public_ip ~= nil then
+                json_tbl.public_ip = self.syncer.public_ip
             end
-            
-            res[#res + 1] = ",\r\n"
-                    .. '"host": "' .. self.syncer.host .. '"' .. ",\r\n"
-                    .. '"domain": "' .. self.syncer.domain .. '"' .. ",\r\n"
-                    .. '"sync_interval": ' .. self.syncer.interval .. "\r\n"
-                .. '}'
+
+            res[#res + 1] = Api.json_stringify(json_tbl)
         end
         
         sck:on("sent", send)
