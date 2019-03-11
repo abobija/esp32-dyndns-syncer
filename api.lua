@@ -63,6 +63,7 @@ Api.create = function(conf)
             path    = path,
             handler = handler
         })
+        
         return self
     end
 
@@ -110,6 +111,7 @@ Api.create = function(conf)
             else
                 res_json_tbl = ep.handler(self, req)
                 res[#res + 1] = Api.json_stringify(res_json_tbl)
+                res_json_tbl = nil
             end
         end
 
