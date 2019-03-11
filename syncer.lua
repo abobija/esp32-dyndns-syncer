@@ -106,7 +106,8 @@ NameCheapDynDnsSyncer.create = function(conf)
         api            = nil,
         on_before_sync = conf.on_before_sync,
         on_after_sync  = conf.on_after_sync,
-        public_ip      = nil
+        public_ip      = nil,
+        local_ip       = nil
     }
 
     local sync_tmr = tmr.create()
@@ -121,6 +122,8 @@ NameCheapDynDnsSyncer.create = function(conf)
     
     self.fire_sta_got_ip = function(e, info)
         print('[DynDnsSyncer] STA:', e, info.ip, ' netmask = ', info.netmask, ' gateway = ', info.gw)
+
+        self.local_ip = info.ip
 
         if self.api_enabled == true then
             init_api(self, sync_tmr)
