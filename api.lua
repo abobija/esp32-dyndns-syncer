@@ -1,4 +1,4 @@
-Api = {}
+local Api = {}
 
 local function str_split(inputstr, sep)
     if sep == nil then sep = "%s" end
