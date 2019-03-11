@@ -1,15 +1,9 @@
 Api = {}
 
 local function str_split(inputstr, sep)
-    if sep == nil then
-        sep = "%s"
-    end
-    
+    if sep == nil then sep = "%s" end
     local result = {}
-    
-    for str in inputstr:gmatch("([^"..sep.."]+)") do
-        table.insert(result, str)
-    end
+    for str in inputstr:gmatch("([^"..sep.."]+)") do table.insert(result, str) end
     
     return result
 end
@@ -63,18 +57,29 @@ Api.create = function(conf)
             print('[DynDnsSyncer:API]', 'method:' .. req.method .. ', path:' .. req.path .. ', std:' .. req.std)
             
             res[1] = res[1] .. "200 OK\r\n"
-            
-            res[#res + 1] = "Content-Type: text/plain; charset=UTF-8\r\n"
+            res[#res + 1] = "Content-Type: application/json; charset=UTF-8\r\n"
             res[#res + 1] = "\r\n"
+
+            res[#res + 1] = '{' .. "\r\n"
+                    .. '"id": "' .. node.chipid() .. '"' .. ",\r\n"
+                    .. '"name": "ESP32 DynDNS Syncer"' .. ",\r\n"
+                    .. '"uptime": ' .. node.uptime() .. ",\r\n"
+                    .. '"heap": ' .. node.heap() .. ",\r\n"
+                    .. '"local_ip": "' .. self.syncer.local_ip .. '"' .. ",\r\n"
             
-            res[#res + 1] = "ESP32 DynDNS Syncer\r\n\r\n"
-    
-            local uptime_us = node.uptime()
+            res[#res + 1] = '"public_ip": '
+
+            if self.syncer.public_ip == nil then
+                res[#res + 1] = 'null'
+            else
+                res[#res + 1] = '"' .. self.syncer.public_ip .. '"'
+            end
             
-            res[#res + 1] = 'Public IP       : ' .. self.syncer.public_ip .. "\r\n"
-            res[#res + 1] = '<Host>.<Domain> : <' .. self.syncer.host .. '>.<' .. self.syncer.domain .. ">\r\n"
-            res[#res + 1] = 'Sync Interval   : ' .. self.syncer.interval .. ' [min]' .. "\r\n"
-            res[#res + 1] = 'Uptime          : ' .. (uptime_us / 1e6) .. ' [sec]' .. "\r\n"
+            res[#res + 1] = ",\r\n"
+                    .. '"host": "' .. self.syncer.host .. '"' .. ",\r\n"
+                    .. '"domain": "' .. self.syncer.domain .. '"' .. ",\r\n"
+                    .. '"sync_interval": ' .. self.syncer.interval .. "\r\n"
+                .. '}'
         end
         
         sck:on("sent", send)
