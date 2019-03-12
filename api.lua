@@ -9,28 +9,12 @@ local function str_split(inputstr, sep)
 end
 
 Api.json_stringify = function(table)
-    local result = '{' .. "\n"
-
-    for k, v in pairs(table) do
-        local _type = type(v)
-        local quotable = _type ~= 'number' and _type ~= 'boolean'
-        
-        result = result .. '  ' .. '"' .. k .. '": '
-
-        if quotable then 
-            result = result .. '"' .. v .. '"'
-        else
-            result = result .. v
-        end
-        
-        if next(table, k) ~= nil then
-            result = result .. ','
-        end
-        
-        result = result .. '\n'
-    end
-
-    return result .. '}'
+    local ok
+    local json
+    ok, json = pcall(sjson.encode, table)
+    
+    if ok then return json end
+    return nil
 end
 
 Api.parse_http_request = function(request)
