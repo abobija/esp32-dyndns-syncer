@@ -46,13 +46,16 @@ local syncer_sync = function(syncer, _tmr)
             }, _tmr)
         else
             print('[DynDnsSyncer] public_ip =', public_ip)
-        
+
+            syncer.last_global_ip_check_time = node.uptime()
+            
             if syncer.public_ip ~= nil and syncer.public_ip == public_ip then
                 print('[DynDnsSyncer] public ip has not changed')
                 
                 syncer_fire_after_sync(syncer, {
                     code = NameCheapDynDnsSyncer.PUBLIC_IP_NO_CHANGE
                 }, _tmr)
+                
                 return
             end
 
@@ -75,6 +78,8 @@ local syncer_sync = function(syncer, _tmr)
                     }, _tmr)
                 else
                     print('[DynDnsSyncer]', res)
+
+                    syncer.last_sync_time = node.uptime()
                     
                     syncer_fire_after_sync(syncer, {
                         code = NameCheapDynDnsSyncer.DNS_RECORD_UPDATED
@@ -93,20 +98,18 @@ local init_api = function(syncer, _tmr)
         })
         .add_endpoint('/', function(_api, _req) 
             local response = {
-                id            = node.chipid(),
-                name          = "ESP32 DynDNS Syncer",
-                uptime        = node.uptime(),
-                heap          = node.heap(),
-                local_ip      = syncer.local_ip,
-                public_ip     = nil,
-                host          = syncer.host,
-                domain        = syncer.domain,
-                sync_interval = syncer.interval
+                id                        = node.chipid(),
+                name                      = "ESP32 DynDNS Syncer",
+                uptime                    = node.uptime(),
+                heap                      = node.heap(),
+                local_ip                  = syncer.local_ip,
+                public_ip                 = syncer.public_ip,
+                host                      = syncer.host,
+                domain                    = syncer.domain,
+                sync_interval             = syncer.interval,
+                last_sync_time            = syncer.last_sync_time,
+                last_global_ip_check_time = syncer.last_global_ip_check_time
             }
-            
-            if syncer.public_ip ~= nil then
-                response.public_ip = syncer.public_ip
-            end
         
             return response
         end)
@@ -115,16 +118,18 @@ end
 
 NameCheapDynDnsSyncer.create = function(conf)
     local self = {
-        interval       = conf.interval,
-        host           = conf.host,
-        domain         = conf.domain,
-        pass           = conf.pass,
-        api_enabled    = conf.api_enabled,
-        api            = nil,
-        on_before_sync = conf.on_before_sync,
-        on_after_sync  = conf.on_after_sync,
-        public_ip      = nil,
-        local_ip       = nil
+        interval                  = conf.interval,
+        host                      = conf.host,
+        domain                    = conf.domain,
+        pass                      = conf.pass,
+        api_enabled               = conf.api_enabled,
+        api                       = nil,
+        on_before_sync            = conf.on_before_sync,
+        on_after_sync             = conf.on_after_sync,
+        public_ip                 = nil,
+        local_ip                  = nil,
+        last_sync_time            = nil,
+        last_global_ip_check_time = nil
     }
 
     local sync_tmr = tmr.create()
