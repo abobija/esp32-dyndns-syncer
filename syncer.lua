@@ -94,7 +94,7 @@ local init_api = function(syncer, _tmr)
     if syncer.api_enabled == true and syncer.api == nil then
         syncer.api = require('api')
         .create({
-            port = 80
+            port = 81
         })
         .add_endpoint('/', function(_api, _req) 
             local response = {
