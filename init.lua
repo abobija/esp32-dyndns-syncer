@@ -26,6 +26,35 @@ syncer.on_after_sync = function()
     gpio.write(BLUE_LED, 0)
 end
 
+
+local api = nil
+
+local init_api = function()
+    if CONFIG.api_enabled and api == nil then
+        api = require('api32')
+            .create({
+                port = 80
+            })
+            .on_get('/', function(jreq)
+                local response = {
+                    id                        = node.chipid(),
+                    name                      = "ESP32 DynDNS Syncer",
+                    uptime                    = node.uptime(),
+                    heap                      = node.heap(),
+                    local_ip                  = syncer.local_ip,
+                    public_ip                 = syncer.public_ip,
+                    host                      = syncer.host,
+                    domain                    = syncer.domain,
+                    sync_interval             = syncer.interval,
+                    last_sync_time            = syncer.last_sync_time,
+                    last_global_ip_check_time = syncer.last_global_ip_check_time
+                }
+            
+                return response
+            end)
+    end
+end
+
 wifi.mode(wifi.STATION)
 
 wifi.sta.config({
@@ -34,8 +63,16 @@ wifi.sta.config({
     auto = false
 })
 
-wifi.sta.on('connected',    syncer.fire_sta_connected)
-wifi.sta.on('got_ip',       syncer.fire_sta_got_ip)
+wifi.sta.on('connected', syncer.fire_sta_connected)
+
+wifi.sta.on('got_ip', function(e, info)
+    if CONFIG.api_enabled then
+        init_api()
+    end
+
+    syncer.fire_sta_got_ip(e, info)
+end)
+
 wifi.sta.on('disconnected', syncer.fire_sta_disconnected)
 
 wifi.start()

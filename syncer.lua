@@ -95,40 +95,12 @@ local syncer_sync = function(syncer, _tmr)
     end)
 end
 
-local init_api = function(syncer, _tmr)
-    if syncer.api_enabled == true and syncer.api == nil then
-        syncer.api = require('api32')
-            .create({
-                port = 80
-            })
-            .on_get('/', function(jreq)
-                local response = {
-                    id                        = node.chipid(),
-                    name                      = "ESP32 DynDNS Syncer",
-                    uptime                    = node.uptime(),
-                    heap                      = node.heap(),
-                    local_ip                  = syncer.local_ip,
-                    public_ip                 = syncer.public_ip,
-                    host                      = syncer.host,
-                    domain                    = syncer.domain,
-                    sync_interval             = syncer.interval,
-                    last_sync_time            = syncer.last_sync_time,
-                    last_global_ip_check_time = syncer.last_global_ip_check_time
-                }
-            
-                return response
-            end)
-    end
-end
-
 NameCheapDynDnsSyncer.create = function(conf)
     local self = {
         interval                  = conf.interval,
         host                      = conf.host,
         domain                    = conf.domain,
         pass                      = conf.pass,
-        api_enabled               = conf.api_enabled,
-        api                       = nil,
         on_before_sync            = conf.on_before_sync,
         on_after_sync             = conf.on_after_sync,
         public_ip                 = nil,
@@ -151,11 +123,6 @@ NameCheapDynDnsSyncer.create = function(conf)
         print('[DynDnsSyncer] STA:', e, info.ip, ' netmask = ', info.netmask, ' gateway = ', info.gw)
 
         self.local_ip = info.ip
-
-        if self.api_enabled == true then
-            init_api(self, sync_tmr)
-        end
-        
         syncer_sync(self, sync_tmr)
     end
     
