@@ -1,3 +1,8 @@
+--[[
+    Author: Alija Bobija
+    Website: http://abobija.com
+]]
+
 require "config"
 
 local BLUE_LED = 2

@@ -1,3 +1,8 @@
+--[[
+    Author: Alija Bobija
+    Website: http://abobija.com
+]]
+
 local NameCheapDynDnsSyncer = {
     DNS_RECORD_UPDATED  = 1,
     PUBLIC_IP_NO_CHANGE = 2,

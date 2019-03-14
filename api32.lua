@@ -1,3 +1,8 @@
+--[[
+    Author: Alija Bobija
+    Website: http://abobija.com
+]]
+
 local Api = {}
 
 local function str_starts_with(haystack, needle)
