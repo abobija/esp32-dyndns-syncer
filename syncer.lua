@@ -92,7 +92,7 @@ end
 
 local init_api = function(syncer, _tmr)
     if syncer.api_enabled == true and syncer.api == nil then
-        syncer.api = require('api')
+        syncer.api = require('api32')
             .create({
                 port = 80
             })
