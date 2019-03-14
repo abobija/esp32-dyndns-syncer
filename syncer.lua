@@ -93,26 +93,26 @@ end
 local init_api = function(syncer, _tmr)
     if syncer.api_enabled == true and syncer.api == nil then
         syncer.api = require('api')
-        .create({
-            port = 80
-        })
-        .add_endpoint('/', function(_api, _req) 
-            local response = {
-                id                        = node.chipid(),
-                name                      = "ESP32 DynDNS Syncer",
-                uptime                    = node.uptime(),
-                heap                      = node.heap(),
-                local_ip                  = syncer.local_ip,
-                public_ip                 = syncer.public_ip,
-                host                      = syncer.host,
-                domain                    = syncer.domain,
-                sync_interval             = syncer.interval,
-                last_sync_time            = syncer.last_sync_time,
-                last_global_ip_check_time = syncer.last_global_ip_check_time
-            }
-        
-            return response
-        end)
+            .create({
+                port = 80
+            })
+            .on_get('/', function(jreq)
+                local response = {
+                    id                        = node.chipid(),
+                    name                      = "ESP32 DynDNS Syncer",
+                    uptime                    = node.uptime(),
+                    heap                      = node.heap(),
+                    local_ip                  = syncer.local_ip,
+                    public_ip                 = syncer.public_ip,
+                    host                      = syncer.host,
+                    domain                    = syncer.domain,
+                    sync_interval             = syncer.interval,
+                    last_sync_time            = syncer.last_sync_time,
+                    last_global_ip_check_time = syncer.last_global_ip_check_time
+                }
+            
+                return response
+            end)
     end
 end
 

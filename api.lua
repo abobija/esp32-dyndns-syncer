@@ -15,7 +15,20 @@ local function str_split(inputstr, sep)
     return result
 end
 
-Api.json_stringify = function(table)
+local function json_parse(json_str)
+    if json_str == nil then return nil end
+
+    local ok
+    local result
+    
+    ok, result = pcall(sjson.decode, json_str)
+
+    if not ok then return nil end
+    
+    return result
+end
+
+local function json_stringify(table)
     local ok
     local json
     ok, json = pcall(sjson.encode, table)
@@ -72,18 +85,27 @@ Api.create = function(conf)
 
     local endpoints = {}
     
-    self.add_endpoint = function(path, handler)
+    self.on = function(method, path, handler)
         table.insert(endpoints, {
+            method  = method,
             path    = path,
             handler = handler
         })
         
         return self
     end
+
+    self.on_get = function(path, handler)
+        return self.on('GET', path, handler)
+    end
+
+    self.on_post = function(path, handler)
+        return self.on('POST', path, handler)
+    end
     
-    local get_endpoint_by_path = function(path)
+    local get_endpoint = function(method, path)
         for _, ep in pairs(endpoints) do
-            if ep.path == path then return ep end
+            if ep.method == method and ep.path == path then return ep end
         end
 
         return nil
@@ -127,17 +149,18 @@ Api.create = function(conf)
         if http_header == nil then
             response_status = '400 Bad Request'
         else
-            local ep = get_endpoint_by_path(http_header.path)
-            local res_json_tbl = {}
+            local ep = get_endpoint(http_header.method, http_header.path)
             
             if ep == nil then
                 response_status = '404 Not Found'
             else
-                stop_rec()
-                
-                res_json_tbl = ep.handler(self, http_header)
-                res[#res + 1] = Api.json_stringify(res_json_tbl)
-                res_json_tbl = nil
+                http_header   = nil
+                local jreq    = json_parse(http_body)
+                http_body     = nil
+                local jres    = ep.handler(jreq)
+                jreq          = nil
+                res[#res + 1] = json_stringify(jres)
+                jres          = nil
             end
         end
         
@@ -148,7 +171,6 @@ Api.create = function(conf)
     end
     
     local on_receive = function(sck, data)
-        print(data)
         if sending then return end
         
         if http_header == nil then
