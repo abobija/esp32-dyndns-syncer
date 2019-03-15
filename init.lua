@@ -26,6 +26,24 @@ syncer.on_after_sync = function()
     gpio.write(BLUE_LED, 0)
 end
 
+local function save_config()
+    local config_file = file.open('config.lua', 'w+')
+
+    config_file:write('CONFIG = { ')
+
+    config_file:write("wifi_ssid = '"..CONFIG.wifi_ssid.."'")
+    config_file:write(", wifi_pwd = '"..CONFIG.wifi_pwd.."'")
+    config_file:write(", sync_interval = "..CONFIG.sync_interval)
+    config_file:write(", dyndns_rec_host = '"..CONFIG.dyndns_rec_host.."'")
+    config_file:write(", dyndns_rec_domain = '"..CONFIG.dyndns_rec_domain.."'")
+    config_file:write(", dyndns_pass = '"..CONFIG.dyndns_pass.."'")
+    config_file:write(", api_enabled = "..tostring(CONFIG.api_enabled))
+    
+    config_file:write(' }')
+
+    config_file:close()
+end
+
 local function home_endpoint(jreq)
     local response = {
         id                        = node.chipid(),
@@ -67,6 +85,8 @@ local function config_endpoint(jreq)
         CONFIG.dyndns_pass = jreq.dyndns_pass
         syncer.pass = CONFIG.dyndns_pass
     end
+
+    save_config()
     
     res.success = true
     return res
