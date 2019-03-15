@@ -108,8 +108,13 @@ NameCheapDynDnsSyncer.create = function(conf)
         last_sync_time            = nil,
         last_global_ip_check_time = nil
     }
-
+    
     local sync_tmr = tmr.create()
+
+    self.update_interval = function(interval)
+        self.interval = interval
+        sync_tmr:interval(self.interval * 6e4)
+    end
 
     sync_tmr:register(self.interval * 6e4, tmr.ALARM_AUTO, function()
         syncer_sync(self, sync_tmr)
