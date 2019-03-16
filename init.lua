@@ -98,7 +98,7 @@ local init_api = function()
     if CONFIG.api_enabled and api == nil then
         api = require('api32')
             .create({
-                port = 80
+                auth = CONFIG.api_auth
             })
             .on_get('/', home_endpoint)
             .on_post('/config', config_endpoint)

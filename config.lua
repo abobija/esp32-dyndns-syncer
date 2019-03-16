@@ -8,5 +8,6 @@ CONFIG = {
     dyndns_rec_domain = 'my-domain.com',
     dyndns_pass       = '********************************', -- generated in 'DYNAMIC DNS' section of 'namecheap.com' dashboard
 
-    api_enabled       = true
+    api_enabled       = true,
+    api_auth          = { user = 'admin', pwd = '********' } -- Set to nil for no auth
 }
