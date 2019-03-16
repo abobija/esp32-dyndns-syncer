@@ -1,4 +1,4 @@
-# esp32-dyndns-syncer
+# Esp32 DynDNS Syncer
 ESP32 DynDNS client for synchronizing NameCheap DNS record with your public IP address
 
 ## Endpoints
