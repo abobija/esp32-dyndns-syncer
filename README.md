@@ -2,7 +2,7 @@
 ESP32 DynDNS client for synchronizing NameCheap DNS record with your public IP address
 
 ## Endpoints
-Application uses [Api32 library](https://github.com/abobija/api32) for serving, so all requests need to be, and responses are presented in `JSON` format.
+Application uses [Api32 library](https://github.com/abobija/api32) for serving, so all requests and responses need to be presented in `JSON` format.
 
 - `GET /`
 
