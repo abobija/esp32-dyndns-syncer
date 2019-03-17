@@ -4,7 +4,7 @@ If you got stuck in situation in which you want to make a "A" DNS record for you
 The device checks, at the given time intervals, whether a public IP address (of your home) has changed. When IP address change is detected, DNS (A + DynDNS) record will be automatically updated by calling [Namecheap API endpoint](https://www.namecheap.com/support/knowledgebase/article.aspx/29/11/how-do-i-use-a-browser-to-dynamically-update-the-hosts-ip).
 
 ## Endpoints
-Application uses [Api32 library](https://github.com/abobija/api32) for serving, so all requests and responses need to be presented in `JSON` format.
+Application uses [Api32](https://github.com/abobija/api32) library for serving, so all requests and responses need to be presented in `JSON` format.
 
 - `GET /`
 
@@ -61,3 +61,13 @@ Application uses [Api32 library](https://github.com/abobija/api32) for serving, 
     "success": true
   }
   ```
+
+## Dependencies
+Project depends on the following NodeMCU modules:
+  - `gpio`
+  - `file`
+  - `node`
+  - `wifi`
+  - `http`
+  - `tmr`
+  - Modules required by [`Api32`](https://github.com/abobija/api32) library
