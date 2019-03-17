@@ -30,15 +30,23 @@ local function save_config()
     local config_file = file.open('config.lua', 'w+')
 
     config_file:write('CONFIG = { ')
-
-    config_file:write("wifi_ssid = '"..CONFIG.wifi_ssid.."'")
-    config_file:write(", wifi_pwd = '"..CONFIG.wifi_pwd.."'")
-    config_file:write(", sync_interval = "..CONFIG.sync_interval)
-    config_file:write(", dyndns_rec_host = '"..CONFIG.dyndns_rec_host.."'")
-    config_file:write(", dyndns_rec_domain = '"..CONFIG.dyndns_rec_domain.."'")
-    config_file:write(", dyndns_pass = '"..CONFIG.dyndns_pass.."'")
-    config_file:write(", api_enabled = "..tostring(CONFIG.api_enabled))
-    
+        config_file:write("wifi_ssid = '"..CONFIG.wifi_ssid.."'")
+        config_file:write(", wifi_pwd = '"..CONFIG.wifi_pwd.."'")
+        config_file:write(", sync_interval = "..CONFIG.sync_interval)
+        config_file:write(", dyndns_rec_host = '"..CONFIG.dyndns_rec_host.."'")
+        config_file:write(", dyndns_rec_domain = '"..CONFIG.dyndns_rec_domain.."'")
+        config_file:write(", dyndns_pass = '"..CONFIG.dyndns_pass.."'")
+        config_file:write(", api_enabled = "..tostring(CONFIG.api_enabled))
+        config_file:write(", api_auth = ")
+        
+        if CONFIG.api_auth == nil then
+            config_file:write("nil")
+        else 
+            config_file:write(" { ")
+                config_file:write("user = '"..CONFIG.api_auth.user.."'") 
+                config_file:write(", pwd = '"..CONFIG.api_auth.pwd.."'") 
+            config_file:write(" } ")
+        end
     config_file:write(' }')
 
     config_file:close()
