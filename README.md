@@ -70,4 +70,4 @@ Project depends on the following NodeMCU modules:
   - `wifi`
   - `http`
   - `tmr`
-  - Modules required by [`Api32`](https://github.com/abobija/api32) library
+  - Modules required by [`Api32`](https://github.com/abobija/api32#dependencies) library
