@@ -1,7 +1,7 @@
 # Esp32 DynDNS Syncer
-If you got stuck in situation in which you want to make a "A" DNS record for your domain that will point to the IP addres of your home, but your home IP address is not static, this project is solution for your problem. Device realized in this project represents the client for auto-updating the DNS (A + DynDNS) record on Namecheap.com domain provider.
+If you got stuck in situation in which you want to make a "A" DNS record for your domain that will point to the IP address of your home, but your home IP address is not static, this project is solution for your problem. Device realized in this project represents the client for auto-updating the DNS (A + DynDNS) record on Namecheap.com domain provider.
 
-The device checks at the given time intervals whether a public IP address has changed. When the change (of public IP address) has detected, DNS (A + DynDNS) record will be automatically updated by calling Namecheap API endpoint.
+The device checks, at the given time intervals, whether a public IP address (of your home) has changed. When the change (of IP address) has detected, DNS (A + DynDNS) record will be automatically updated by calling [Namecheap API endpoint](https://www.namecheap.com/support/knowledgebase/article.aspx/29/11/how-do-i-use-a-browser-to-dynamically-update-the-hosts-ip).
 
 ## Endpoints
 Application uses [Api32 library](https://github.com/abobija/api32) for serving, so all requests and responses need to be presented in `JSON` format.
